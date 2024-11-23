@@ -1,6 +1,8 @@
 //
 
 import { useEffect, useState } from "react";
+import { TMousePosition, TSwipeDir } from "./types";
+import { computeSwipeAndDecideDirection } from "./helpers";
 
 /*
 const useMouseIsDown = () => {
@@ -48,27 +50,10 @@ const useMousePosition = (disabled?: boolean) => {
 };
 */
 
-type TSwipeDir = "up" | "down" | "left" | "right";
-
-type TMousePosition = { x: number; y: number };
 type TSwipeConfig = {
   threshold: number;
   onSwiped: (payload: { dir: TSwipeDir }) => void;
 };
-
-export function checkMoveLenAndType(startingPoint: TMousePosition, currentPoint: TMousePosition, threshold: number) {
-  const xAxisDiff = currentPoint.x - startingPoint.x;
-  const yAxisDiff = currentPoint.y - startingPoint.y;
-
-  const calculated = {
-    isTopDownSwipe: Math.abs(yAxisDiff) > threshold && yAxisDiff > 0,
-    isDownTopSwipe: Math.abs(yAxisDiff) > threshold && yAxisDiff < 0,
-    isLeftToRightSwipe: Math.abs(xAxisDiff) > threshold && xAxisDiff > 0,
-    isRightToLeftSwipe: Math.abs(xAxisDiff) > threshold && xAxisDiff < 0,
-  };
-
-  return calculated;
-}
 
 type TState = {
   isMouseDown: boolean;
@@ -100,7 +85,7 @@ function useSwipe(config: TSwipeConfig) {
       return;
     }
 
-    const computed = checkMoveLenAndType(startingPoint, mousePosition, config.threshold);
+    const swipe = computeSwipeAndDecideDirection(startingPoint, mousePosition, config.threshold);
   };
 
   const { x: mouseX, y: mouseY } = state.mousePosition || {};
