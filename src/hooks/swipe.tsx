@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 //
 
+/*
 const useMouseIsDown = () => {
   const [isMouseDown, setIsMouseDown] = useState(false);
 
@@ -23,6 +24,7 @@ const useMouseIsDown = () => {
     onMouseUp,
   };
 };
+*/
 
 type TSwipeDir = "up" | "down" | "left" | "right";
 
@@ -32,6 +34,7 @@ type TSwipeConfig = {
   onSwiped: (payload: { dir: TSwipeDir }) => void;
 };
 
+/*
 const useMousePosition = (disabled?: boolean) => {
   const [mousePosition, setMousePosition] = useState<TMousePosition>();
 
@@ -55,6 +58,7 @@ const useMousePosition = (disabled?: boolean) => {
 
   return mousePosition;
 };
+*/
 
 export function checkMoveLenAndType(startingPoint: TMousePosition, currentPoint: TMousePosition, threshold: number) {
   const xAxisDiff = currentPoint.x - startingPoint.x;
@@ -70,30 +74,29 @@ export function checkMoveLenAndType(startingPoint: TMousePosition, currentPoint:
   return calculated;
 }
 
+type TState = {
+  isMouseDown: boolean;
+  mousePosition: TMousePosition | undefined;
+  startingPoint: TMousePosition | undefined;
+};
+
 function useSwipe(config: TSwipeConfig) {
-  const { isMouseDown, onMouseDown, onMouseUp } = useMouseIsDown();
-  const mousePosition = useMousePosition();
-  const { x: mouseX, y: mouseY } = mousePosition || {};
-  const [startingPoint, setStartingPoint] = useState<TMousePosition | null>(null);
+  const [state, setState] = useState<TState>({
+    isMouseDown: false,
+    mousePosition: undefined,
+    startingPoint: undefined,
+  });
 
-  useEffect(() => {
-    if (!isMouseDown && !!startingPoint) {
-      setStartingPoint(null);
-      return;
-    }
+  const { isMouseDown, mousePosition, startingPoint } = state;
 
-    if (!mousePosition || !mouseX || !mouseY) {
-      return;
-    }
+  const handleMouseDown = (e) => {
+    setState((curr) => ({ ...curr, startingPoint: curr.mousePosition, isMouseDown: true }));
+  };
 
-    if (isMouseDown) {
-      setStartingPoint({ x: mouseX, y: mouseY });
-      return;
-    }
-  }, [isMouseDown]);
+  const handleMouseUp = (e) => {
+    setState((curr) => ({ ...curr, startingPoint: undefined, isMouseDown: false }));
 
-  useEffect(() => {
-    if (!isMouseDown || !startingPoint) {
+    if (!startingPoint) {
       return;
     }
 
@@ -101,12 +104,28 @@ function useSwipe(config: TSwipeConfig) {
       return;
     }
 
-    checkMoveLenAndType(startingPoint, mousePosition, config.threshold);
-  }, [mouseX, mouseY]);
+    const computed = checkMoveLenAndType(startingPoint, mousePosition, config.threshold);
+  };
+
+  const { x: mouseX, y: mouseY } = state.mousePosition || {};
+
+  useEffect(() => {
+    const updateMousePosition = (ev) => {
+      setState((curr) => ({ ...curr, mousePosition: { x: ev.clientX, y: ev.clientY } }));
+    };
+
+    window.addEventListener("mousemove", updateMousePosition);
+
+    return () => {
+      window.removeEventListener("mousemove", updateMousePosition);
+    };
+  }, []);
 
   return {
     isMouseDown,
     mousePosition,
+    handleMouseDown,
+    handleMouseUp,
   };
 }
 
