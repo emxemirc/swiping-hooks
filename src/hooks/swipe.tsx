@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-//
-
-//
-
 /*
 const useMouseIsDown = () => {
   const [isMouseDown, setIsMouseDown] = useState(false);
@@ -25,14 +21,6 @@ const useMouseIsDown = () => {
   };
 };
 */
-
-type TSwipeDir = "up" | "down" | "left" | "right";
-
-type TMousePosition = { x: number; y: number };
-type TSwipeConfig = {
-  threshold: number;
-  onSwiped: (payload: { dir: TSwipeDir }) => void;
-};
 
 /*
 const useMousePosition = (disabled?: boolean) => {
@@ -59,6 +47,14 @@ const useMousePosition = (disabled?: boolean) => {
   return mousePosition;
 };
 */
+
+type TSwipeDir = "up" | "down" | "left" | "right";
+
+type TMousePosition = { x: number; y: number };
+type TSwipeConfig = {
+  threshold: number;
+  onSwiped: (payload: { dir: TSwipeDir }) => void;
+};
 
 export function checkMoveLenAndType(startingPoint: TMousePosition, currentPoint: TMousePosition, threshold: number) {
   const xAxisDiff = currentPoint.x - startingPoint.x;
