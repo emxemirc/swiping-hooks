@@ -86,6 +86,11 @@ function useSwipe(config: TSwipeConfig) {
     }
 
     const swipe = computeSwipeAndDecideDirection(startingPoint, mousePosition, config.threshold);
+    if (!swipe.computed.hasSwipe) {
+      return;
+    }
+
+    config.onSwiped({ dir: swipe.dir as TSwipeDir });
   };
 
   const { x: mouseX, y: mouseY } = state.mousePosition || {};
