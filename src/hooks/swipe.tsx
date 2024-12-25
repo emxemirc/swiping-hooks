@@ -70,11 +70,11 @@ function useSwipe(config: TSwipeConfig) {
 
   const { isMouseDown, mousePosition, startingPoint } = state;
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = () => {
     setState((curr) => ({ ...curr, startingPoint: curr.mousePosition, isMouseDown: true }));
   };
 
-  const handleMouseUp = (e) => {
+  const handleMouseUp = () => {
     setState((curr) => ({ ...curr, startingPoint: undefined, isMouseDown: false }));
 
     if (!startingPoint) {
@@ -94,9 +94,10 @@ function useSwipe(config: TSwipeConfig) {
   };
 
   const { x: mouseX, y: mouseY } = state.mousePosition || {};
+  console.log(mouseX, mouseY);
 
   useEffect(() => {
-    const updateMousePosition = (ev) => {
+    const updateMousePosition = (ev: any) => {
       setState((curr) => ({ ...curr, mousePosition: { x: ev.clientX, y: ev.clientY } }));
     };
 
