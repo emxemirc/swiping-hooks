@@ -9,7 +9,7 @@ type SwipeDemoProps = {
 const SwipeDemo = ({ threshold = 50 }: SwipeDemoProps) => {
   const [lastSwipe, setLastSwipe] = useState<TSwipeDir | null>(null);
 
-  const { isMouseDown, mousePosition, handleMouseDown, handleMouseUp } = useSwipe({
+  const { isMouseDown, mousePosition, handleMouseDown, handleMouseUp, handleMouseMove } = useSwipe({
     threshold,
     onSwiped: ({ dir }) => {
       setLastSwipe(dir);
@@ -31,17 +31,19 @@ const SwipeDemo = ({ threshold = 50 }: SwipeDemoProps) => {
         userSelect: "none",
         padding: "10px",
       }}
+      data-testid="swipe-container"
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
     >
       <div>Swipe anywhere in this box</div>
       {lastSwipe && (
-        <div>
-          Last swipe direction: <strong> {lastSwipe} </strong>
+        <div data-testid="swipe-direction" data-swipe-state={lastSwipe}>
+          Last swipe direction: <strong>{lastSwipe}</strong>
         </div>
       )}
       {mousePosition && (
-        <div>
+        <div data-testid="mouse-position" data-position-x={mousePosition.x} data-position-y={mousePosition.y}>
           Position: {mousePosition.x}, {mousePosition.y}
         </div>
       )}

@@ -1,6 +1,6 @@
 //
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TMousePosition, TSwipeDir } from "./types";
 import { computeSwipeAndDecideDirection } from "./helpers";
 
@@ -93,26 +93,20 @@ function useSwipe(config: TSwipeConfig) {
     config.onSwiped({ dir: swipe.dir as TSwipeDir });
   };
 
-  const { x: mouseX, y: mouseY } = state.mousePosition || {};
-  console.log(mouseX, mouseY);
+  const updateMousePosition = (ev: any) => {
+    setState((curr) => ({ ...curr, mousePosition: { x: ev.clientX, y: ev.clientY } }));
+  };
 
-  useEffect(() => {
-    const updateMousePosition = (ev: any) => {
-      setState((curr) => ({ ...curr, mousePosition: { x: ev.clientX, y: ev.clientY } }));
-    };
-
-    window.addEventListener("mousemove", updateMousePosition);
-
-    return () => {
-      window.removeEventListener("mousemove", updateMousePosition);
-    };
-  }, []);
+  const handleMouseMove = (e: any) => {
+    updateMousePosition(e);
+  };
 
   return {
     isMouseDown,
     mousePosition,
     handleMouseDown,
     handleMouseUp,
+    handleMouseMove,
   };
 }
 

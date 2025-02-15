@@ -1,5 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { checkMoveLenAndType, computeSwipeAndDecideDirection } from "./helpers";
+import { renderHook, act } from "@testing-library/react";
+import useSwipe from "./swipe";
+import { TSwipeDir } from "./types";
 
 describe("checkMoveLenAndType", () => {
   it("should detect top-down swipe when y difference exceeds threshold", () => {
@@ -130,5 +133,112 @@ describe("checkMoveLenAndType", () => {
     const result = computeSwipeAndDecideDirection(startPoint, endPoint, threshold);
 
     expect(result.dir).toBe("right");
+  });
+});
+
+describe("useSwipe", () => {
+  type SwipeTestConfig = {
+    startCoords: { x: number; y: number };
+    endCoords: { x: number; y: number };
+    expectedDir: TSwipeDir | undefined;
+    threshold?: number;
+  };
+
+  const testSwipe = async (config: SwipeTestConfig) => {
+    const { startCoords, endCoords, expectedDir, threshold = 50 } = config;
+    const onSwiped = vi.fn();
+    const { result } = renderHook(() => useSwipe({ threshold, onSwiped }));
+
+    act(() => {
+      result.current.handleMouseMove(
+        new MouseEvent("mousemove", {
+          clientX: startCoords.x,
+          clientY: startCoords.y,
+        })
+      );
+      result.current.handleMouseDown();
+    });
+
+    expect(result.current.isMouseDown).toBe(true);
+    expect(result.current.mousePosition).toEqual(startCoords);
+
+    act(() => {
+      result.current.handleMouseMove(
+        new MouseEvent("mousemove", {
+          clientX: endCoords.x,
+          clientY: endCoords.y,
+        })
+      );
+    });
+
+    expect(result.current.mousePosition).toEqual(endCoords);
+
+    act(() => {
+      result.current.handleMouseUp();
+    });
+
+    if (expectedDir) {
+      expect(onSwiped).toHaveBeenCalledWith({ dir: expectedDir });
+    } else {
+      expect(onSwiped).not.toHaveBeenCalled();
+    }
+  };
+
+  it("should detect right swipe correctly", async () => {
+    await testSwipe({
+      startCoords: { x: 0, y: 0 },
+      endCoords: { x: 100, y: 0 },
+      expectedDir: "right",
+    });
+  });
+
+  it("should detect left swipe correctly", async () => {
+    await testSwipe({
+      startCoords: { x: 100, y: 0 },
+      endCoords: { x: 0, y: 0 },
+      expectedDir: "left",
+    });
+  });
+
+  it("should detect up swipe correctly", async () => {
+    await testSwipe({
+      startCoords: { x: 0, y: 100 },
+      endCoords: { x: 0, y: 0 },
+      expectedDir: "up",
+    });
+  });
+
+  it("should detect down swipe correctly", async () => {
+    await testSwipe({
+      startCoords: { x: 0, y: 0 },
+      endCoords: { x: 0, y: 100 },
+      expectedDir: "down",
+    });
+  });
+
+  it("should not trigger swipe when below threshold", async () => {
+    await testSwipe({
+      startCoords: { x: 0, y: 0 },
+      endCoords: { x: 20, y: 0 },
+      expectedDir: undefined,
+    });
+  });
+
+  it("should track mouse position correctly during movement", async () => {
+    const onSwiped = vi.fn();
+    const { result } = renderHook(() => useSwipe({ threshold: 50, onSwiped }));
+
+    act(() => {
+      result.current.handleMouseMove(new MouseEvent("mousemove", { clientX: 0, clientY: 0 }));
+      result.current.handleMouseDown();
+    });
+
+    expect(result.current.mousePosition).toEqual({ x: 0, y: 0 });
+
+    act(() => {
+      result.current.handleMouseMove(new MouseEvent("mousemove", { clientX: 25, clientY: 25 }));
+    });
+
+    expect(result.current.mousePosition).toEqual({ x: 25, y: 25 });
   });
 });
