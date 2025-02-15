@@ -4,52 +4,6 @@ import { useState } from "react";
 import { TMousePosition, TSwipeDir } from "./types";
 import { computeSwipeAndDecideDirection } from "./helpers";
 
-/*
-const useMouseIsDown = () => {
-  const [isMouseDown, setIsMouseDown] = useState(false);
-
-  const onMouseDown = (e) => {
-    setIsMouseDown(true);
-  };
-
-  const onMouseUp = (e) => {
-    setIsMouseDown(false);
-  };
-
-  return {
-    isMouseDown,
-    onMouseDown,
-    onMouseUp,
-  };
-};
-*/
-
-/*
-const useMousePosition = (disabled?: boolean) => {
-  const [mousePosition, setMousePosition] = useState<TMousePosition>();
-
-  useEffect(() => {
-    const updateMousePosition = (ev: any) => {
-      setMousePosition({ x: ev.clientX, y: ev.clientY });
-    };
-
-    if (!disabled) {
-      window.addEventListener("mousemove", updateMousePosition);
-    }
-
-    if (disabled) {
-      window.removeEventListener("mousemove", updateMousePosition);
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", updateMousePosition);
-    };
-  }, [disabled]);
-
-  return mousePosition;
-};
-*/
-
 type TSwipeConfig = {
   threshold: number;
   onSwiped: (payload: { dir: TSwipeDir }) => void;
