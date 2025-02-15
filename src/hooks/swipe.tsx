@@ -1,6 +1,6 @@
 //
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TMousePosition, TSwipeDir } from "./types";
 import { computeSwipeAndDecideDirection } from "./helpers";
 
