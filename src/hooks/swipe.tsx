@@ -101,8 +101,6 @@ function useSwipe(config: TSwipeConfig) {
     updateMousePosition(e);
   };
 
-  console.log("try");
-
   return {
     isMouseDown,
     mousePosition,
